@@ -36,33 +36,33 @@ if [ $uid -lt 0 ]; then
 	exit 1
 fi
 
-rserver=$2
-if [ -z "${rserver##*:*}" ]; then
-	rhost="${rserver%:*}"
-	rport="${rserver##*:}"
+sambaserver=$2
+if [ -z "${sambaserver##*:*}" ]; then
+	sambahost="${sambaserver%:*}"
+	sambaport="${sambaserver##*:}"
 else
-	rhost=$rserver
-	rport=22
+	sambahost=$sambaserver
+	sambaport=22
 fi
 
 if [ "$3" != "" ] && [ "$3" != "$2" ]; then
-	bserver=$3
+	backupserver=$3
 
-	if ! [[ $bserver =~ ^[a-z0-9.-]+[.][a-z0-9]+([:][0-9]+)?$ ]]; then
+	if ! [[ $backupserver =~ ^[a-z0-9.-]+[.][a-z0-9]+([:][0-9]+)?$ ]]; then
 		echo "error: parameter 3 not conforming host name format"
 		exit 1
 	fi
 
-	if [ -z "${bserver##*:*}" ]; then
-		bhost="${bserver%:*}"
-		bport="${bserver##*:}"
+	if [ -z "${backupserver##*:*}" ]; then
+		backuphost="${backupserver%:*}"
+		backupport="${backupserver##*:}"
 	else
-		bhost=$bserver
-		bport=22
+		backuphost=$backupserver
+		backupport=22
 	fi
 
-	if [ "`getent hosts $bhost`" = "" ]; then
-		echo "error: host $bhost not found"
+	if [ "`getent hosts $backuphost`" = "" ]; then
+		echo "error: host $backuphost not found"
 		exit 1
 	fi
 fi
@@ -72,15 +72,15 @@ useradd -u $uid -d $path -m -g sambashare -s /bin/false smb-$1
 chmod 0711 $path
 rm $path/.bash_logout $path/.bashrc $path/.profile
 
-rkey=`ssh_management_key_storage_filename $rhost`
-ssh -i $rkey -p $rport root@$rhost "useradd -u $uid -d $path -m -g sambashare -s /bin/false smb-$1"
-ssh -i $rkey -p $rport root@$rhost "chmod 0711 $path"
-ssh -i $rkey -p $rport root@$rhost "rm $path/.bash_logout $path/.bashrc $path/.profile"
-ssh -i $rkey -p $rport root@$rhost "smbpasswd -a smb-$1"
+sambakey=`ssh_management_key_storage_filename $sambahost`
+ssh -i $sambakey -p $sambaport root@$sambahost "useradd -u $uid -d $path -m -g sambashare -s /bin/false smb-$1"
+ssh -i $sambakey -p $sambaport root@$sambahost "chmod 0711 $path"
+ssh -i $sambakey -p $sambaport root@$sambahost "rm $path/.bash_logout $path/.bashrc $path/.profile"
+ssh -i $sambakey -p $sambaport root@$sambahost "smbpasswd -a smb-$1"
 
 if [ "$3" != "" ] && [ "$3" != "$2" ]; then
-	bkey=`ssh_management_key_storage_filename $bhost`
-	ssh -i $bkey -p $bport root@$bhost "useradd -u $uid -d $path -m -g sambashare -s /bin/false smb-$1"
-	ssh -i $bkey -p $bport root@$bhost "chmod 0711 $path"
-	ssh -i $bkey -p $bport root@$bhost "rm $path/.bash_logout $path/.bashrc $path/.profile"
+	backupkey=`ssh_management_key_storage_filename $backuphost`
+	ssh -i $backupkey -p $backupport root@$backuphost "useradd -u $uid -d $path -m -g sambashare -s /bin/false smb-$1"
+	ssh -i $backupkey -p $backupport root@$backuphost "chmod 0711 $path"
+	ssh -i $backupkey -p $backupport root@$backuphost "rm $path/.bash_logout $path/.bashrc $path/.profile"
 fi
