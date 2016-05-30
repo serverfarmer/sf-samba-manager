@@ -37,6 +37,8 @@ if [ $uid -lt 0 ]; then
 fi
 
 sambaserver=$2
+backupserver=$3
+
 if [ -z "${sambaserver##*:*}" ]; then
 	sambahost="${sambaserver%:*}"
 	sambaport="${sambaserver##*:}"
@@ -45,8 +47,7 @@ else
 	sambaport=22
 fi
 
-if [ "$3" != "" ] && [ "$3" != "$2" ]; then
-	backupserver=$3
+if [ "$backupserver" != "" ] && [ "$backupserver" != "$sambaserver" ]; then
 
 	if ! [[ $backupserver =~ ^[a-z0-9.-]+[.][a-z0-9]+([:][0-9]+)?$ ]]; then
 		echo "error: parameter 3 not conforming host name format"
@@ -78,7 +79,7 @@ ssh -i $sambakey -p $sambaport root@$sambahost "chmod 0711 $path"
 ssh -i $sambakey -p $sambaport root@$sambahost "rm $path/.bash_logout $path/.bashrc $path/.profile"
 ssh -i $sambakey -p $sambaport root@$sambahost "smbpasswd -a smb-$1"
 
-if [ "$3" != "" ] && [ "$3" != "$2" ]; then
+if [ "$backupserver" != "" ] && [ "$backupserver" != "$sambaserver" ]; then
 	backupkey=`ssh_management_key_storage_filename $backuphost`
 	ssh -i $backupkey -p $backupport root@$backuphost "useradd -u $uid -d $path -m -g sambashare -s /bin/false smb-$1"
 	ssh -i $backupkey -p $backupport root@$backuphost "chmod 0711 $path"
