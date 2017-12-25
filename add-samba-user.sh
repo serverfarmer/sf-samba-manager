@@ -2,7 +2,7 @@
 . /opt/farm/scripts/functions.uid
 . /opt/farm/scripts/functions.net
 . /opt/farm/scripts/functions.custom
-. /opt/farm/scripts/functions.keys
+. /opt/farm/ext/keys/functions
 # create Samba account:
 # - first on local management server (to preserve UID)
 # - then on specified Samba server (sf-samba-server and sf-php extensions required)
