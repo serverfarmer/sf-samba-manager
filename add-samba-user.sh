@@ -1,6 +1,6 @@
 #!/bin/bash
-. /opt/farm/scripts/functions.uid
 . /opt/farm/scripts/functions.custom
+. /opt/farm/ext/passwd-utils/functions
 . /opt/farm/ext/net-utils/functions
 . /opt/farm/ext/keys/functions
 # create Samba account:
