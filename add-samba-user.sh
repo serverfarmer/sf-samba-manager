@@ -1,8 +1,6 @@
 #!/bin/bash
-. /opt/farm/scripts/functions.custom
 . /opt/farm/ext/passwd-utils/functions
 . /opt/farm/ext/net-utils/functions
-. /opt/farm/ext/keys/functions
 # create Samba account:
 # - first on local management server (to preserve UID)
 # - then on specified Samba server (sf-samba-server and sf-php extensions required)
@@ -66,14 +64,14 @@ useradd -u $uid -d $path -m -g sambashare -s /bin/false smb-$1
 chmod 0711 $path
 rm $path/.bash_logout $path/.bashrc $path/.profile
 
-sambakey=`ssh_management_key_storage_filename $sambahost`
+sambakey=`/opt/farm/ext/keys/get-ssh-management-key.sh $sambahost`
 ssh -i $sambakey -p $sambaport root@$sambahost "useradd -u $uid -d $path -m -g sambashare -s /bin/false smb-$1"
 ssh -i $sambakey -p $sambaport root@$sambahost "chmod 0711 $path"
 ssh -i $sambakey -p $sambaport root@$sambahost "rm $path/.bash_logout $path/.bashrc $path/.profile"
 ssh -i $sambakey -p $sambaport root@$sambahost "smbpasswd -a smb-$1"
 
 if [ "$backupserver" != "" ] && [ "$backupserver" != "$sambaserver" ]; then
-	backupkey=`ssh_management_key_storage_filename $backuphost`
+	backupkey=`/opt/farm/ext/keys/get-ssh-management-key.sh $backuphost`
 	ssh -i $backupkey -p $backupport root@$backuphost "useradd -u $uid -d $path -m -g sambashare -s /bin/false smb-$1"
 	ssh -i $backupkey -p $backupport root@$backuphost "chmod 0711 $path"
 	ssh -i $backupkey -p $backupport root@$backuphost "rm $path/.bash_logout $path/.bashrc $path/.profile"
